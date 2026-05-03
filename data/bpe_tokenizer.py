@@ -1,0 +1,76 @@
+from collections import Counter
+
+
+class BPETokenizer:
+
+    def __init__(self):
+        pass
+
+    def text_to_bytes(self, text: str) -> list[int]:
+
+        if not isinstance(text, str):
+            raise TypeError("Input text must be a string.")
+
+        return list(text.encode("utf-8"))
+
+    def bytes_to_text(self, byte_ids: list[int]) -> str:
+
+        if not isinstance(byte_ids, list):
+            raise TypeError("byte_ids must be a list of integers.")
+
+        for byte_id in byte_ids:
+            if not isinstance(byte_id, int):
+                raise TypeError("All byte ids must be integers.")
+
+            if byte_id < 0 or byte_id > 255:
+                raise ValueError("Byte ids must be in the range 0 to 255.")
+
+        return bytes(byte_ids).decode("utf-8")
+
+    def get_adjacent_pairs(self, ids: list[int]) -> list[tuple[int, int]]:
+
+        if not isinstance(ids, list):
+            raise TypeError("ids must be a list of integers.")
+
+        for token_id in ids:
+            if not isinstance(token_id, int):
+                raise TypeError("All token ids must be integers.")
+
+        pairs = []
+
+        for i in range(len(ids) - 1):
+            pair = (ids[i], ids[i + 1])
+            pairs.append(pair)
+
+        return pairs
+
+    def count_pair_frequencies(
+        self,
+        ids: list[int],
+    ) -> Counter[tuple[int, int]]:
+
+        pairs = self.get_adjacent_pairs(ids)
+
+        return Counter(pairs)
+
+
+if __name__ == "__main__":
+
+    tokenizer = BPETokenizer()
+
+    text = "cf cf TNF-α 😊"
+
+    byte_ids = tokenizer.text_to_bytes(text)
+
+    decoded_text = tokenizer.bytes_to_text(byte_ids)
+
+    pairs = tokenizer.get_adjacent_pairs(byte_ids)
+
+    pair_frequencies = tokenizer.count_pair_frequencies(byte_ids)
+
+    print("Original text:", text)
+    print("Byte ids:", byte_ids)
+    print("Decoded text:", decoded_text)
+    print("Match:", text == decoded_text)
+    print("Adjacent pairs:", pairs)
+    print("Pair frequencies:", pair_frequencies)
