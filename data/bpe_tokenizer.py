@@ -70,6 +70,45 @@ class BPETokenizer:
 
         return pair_frequencies.most_common(1)[0][0]
 
+    def merge_pair(
+        self,
+        ids: list[int],
+        pair: tuple[int, int],
+        new_token_id: int,
+    ) -> list[int]:
+
+        if not isinstance(ids, list):
+            raise TypeError("ids must be a list of integers.")
+
+        if not isinstance(pair, tuple):
+            raise TypeError("pair must be a tuple.")
+
+        if len(pair) != 2:
+            raise ValueError("pair must contain exactly two token ids.")
+
+        if not isinstance(new_token_id, int):
+            raise TypeError("new_token_id must be an integer.")
+
+        merged_ids = []
+
+        i = 0
+
+        while i < len(ids):
+
+            if (
+                i < len(ids) - 1
+                and ids[i] == pair[0]
+                and ids[i + 1] == pair[1]
+            ):
+                merged_ids.append(new_token_id)
+                i += 2
+
+            else:
+                merged_ids.append(ids[i])
+                i += 1
+
+        return merged_ids
+
 
 if __name__ == "__main__":
 
@@ -89,6 +128,12 @@ if __name__ == "__main__":
         pair_frequencies
     )
 
+    merged_ids = tokenizer.merge_pair(
+        ids=byte_ids,
+        pair=most_frequent_pair,
+        new_token_id=256,
+    )
+
     print("Original text:", text)
 
     print("Byte ids:", byte_ids)
@@ -102,3 +147,5 @@ if __name__ == "__main__":
     print("Pair frequencies:", pair_frequencies)
 
     print("Most frequent pair:", most_frequent_pair)
+
+    print("Merged ids:", merged_ids)
