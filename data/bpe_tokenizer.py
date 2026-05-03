@@ -19,6 +19,7 @@ class BPETokenizer:
             raise TypeError("byte_ids must be a list of integers.")
 
         for byte_id in byte_ids:
+
             if not isinstance(byte_id, int):
                 raise TypeError("All byte ids must be integers.")
 
@@ -27,19 +28,25 @@ class BPETokenizer:
 
         return bytes(byte_ids).decode("utf-8")
 
-    def get_adjacent_pairs(self, ids: list[int]) -> list[tuple[int, int]]:
+    def get_adjacent_pairs(
+        self,
+        ids: list[int],
+    ) -> list[tuple[int, int]]:
 
         if not isinstance(ids, list):
             raise TypeError("ids must be a list of integers.")
 
         for token_id in ids:
+
             if not isinstance(token_id, int):
                 raise TypeError("All token ids must be integers.")
 
         pairs = []
 
         for i in range(len(ids) - 1):
+
             pair = (ids[i], ids[i + 1])
+
             pairs.append(pair)
 
         return pairs
@@ -52,6 +59,16 @@ class BPETokenizer:
         pairs = self.get_adjacent_pairs(ids)
 
         return Counter(pairs)
+
+    def get_most_frequent_pair(
+        self,
+        pair_frequencies: Counter[tuple[int, int]],
+    ) -> tuple[int, int] | None:
+
+        if not pair_frequencies:
+            return None
+
+        return pair_frequencies.most_common(1)[0][0]
 
 
 if __name__ == "__main__":
@@ -68,9 +85,20 @@ if __name__ == "__main__":
 
     pair_frequencies = tokenizer.count_pair_frequencies(byte_ids)
 
+    most_frequent_pair = tokenizer.get_most_frequent_pair(
+        pair_frequencies
+    )
+
     print("Original text:", text)
+
     print("Byte ids:", byte_ids)
+
     print("Decoded text:", decoded_text)
+
     print("Match:", text == decoded_text)
+
     print("Adjacent pairs:", pairs)
+
     print("Pair frequencies:", pair_frequencies)
+
+    print("Most frequent pair:", most_frequent_pair)
