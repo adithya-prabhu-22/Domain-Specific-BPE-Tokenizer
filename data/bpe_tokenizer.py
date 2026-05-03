@@ -173,6 +173,28 @@ class BPETokenizer:
 
         return ids
 
+    def decode_token_ids(
+        self,
+        token_ids: list[int],
+    ) -> str:
+
+        if not isinstance(token_ids, list):
+            raise TypeError("token_ids must be a list of integers.")
+
+        byte_sequence = b""
+
+        for token_id in token_ids:
+
+            if not isinstance(token_id, int):
+                raise TypeError("All token ids must be integers.")
+
+            if token_id not in self.vocab:
+                raise ValueError(f"Unknown token id: {token_id}")
+
+            byte_sequence += self.vocab[token_id]
+
+        return byte_sequence.decode("utf-8")
+
 
 if __name__ == "__main__":
 
@@ -182,6 +204,8 @@ if __name__ == "__main__":
 
     trained_ids = tokenizer.train(text)
 
+    decoded_text = tokenizer.decode_token_ids(trained_ids)
+
     print("Original text:", text)
     print("Trained ids:", trained_ids)
     print("Merge rules:", tokenizer.merges)
@@ -189,3 +213,5 @@ if __name__ == "__main__":
     print("Vocab[256] decoded:", tokenizer.vocab[256].decode("utf-8"))
     print("Vocab[257]:", tokenizer.vocab[257])
     print("Vocab[257] decoded:", tokenizer.vocab[257].decode("utf-8"))
+    print("Decoded from token ids:", decoded_text)
+    print("Match:", text == decoded_text)
