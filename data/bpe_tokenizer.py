@@ -212,6 +212,13 @@ class BPETokenizer:
 
         return byte_sequence.decode("utf-8")
 
+    def decode(
+        self,
+        token_ids: list[int],
+    ) -> str:
+
+        return self.decode_token_ids(token_ids)
+
 
 if __name__ == "__main__":
 
@@ -223,7 +230,7 @@ if __name__ == "__main__":
 
     encoded_ids = tokenizer.encode(train_text)
 
-    decoded_text = tokenizer.decode_token_ids(encoded_ids)
+    decoded_text = tokenizer.decode(encoded_ids)
 
     print("Training text:", train_text)
     print("Trained ids:", trained_ids)
