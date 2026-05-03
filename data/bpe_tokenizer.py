@@ -13,6 +13,11 @@ class BPETokenizer:
 
         self.vocab_size = vocab_size
         self.merges = {}
+        self.vocab = self.build_base_vocab()
+
+    def build_base_vocab(self) -> dict[int, bytes]:
+
+        return {i: bytes([i]) for i in range(256)}
 
     def text_to_bytes(self, text: str) -> list[int]:
 
@@ -159,6 +164,11 @@ class BPETokenizer:
 
             self.merges[learned_pair] = next_token_id
 
+            self.vocab[next_token_id] = (
+                self.vocab[learned_pair[0]]
+                + self.vocab[learned_pair[1]]
+            )
+
             next_token_id += 1
 
         return ids
@@ -175,3 +185,7 @@ if __name__ == "__main__":
     print("Original text:", text)
     print("Trained ids:", trained_ids)
     print("Merge rules:", tokenizer.merges)
+    print("Vocab[256]:", tokenizer.vocab[256])
+    print("Vocab[256] decoded:", tokenizer.vocab[256].decode("utf-8"))
+    print("Vocab[257]:", tokenizer.vocab[257])
+    print("Vocab[257] decoded:", tokenizer.vocab[257].decode("utf-8"))
