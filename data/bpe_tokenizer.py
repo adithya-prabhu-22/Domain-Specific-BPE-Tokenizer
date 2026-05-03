@@ -109,6 +109,29 @@ class BPETokenizer:
 
         return merged_ids
 
+    def train_step(
+        self,
+        ids: list[int],
+        new_token_id: int,
+    ) -> tuple[list[int], tuple[int, int] | None]:
+
+        pair_frequencies = self.count_pair_frequencies(ids)
+
+        most_frequent_pair = self.get_most_frequent_pair(
+            pair_frequencies
+        )
+
+        if most_frequent_pair is None:
+            return ids, None
+
+        merged_ids = self.merge_pair(
+            ids=ids,
+            pair=most_frequent_pair,
+            new_token_id=new_token_id,
+        )
+
+        return merged_ids, most_frequent_pair
+
 
 if __name__ == "__main__":
 
@@ -118,34 +141,12 @@ if __name__ == "__main__":
 
     byte_ids = tokenizer.text_to_bytes(text)
 
-    decoded_text = tokenizer.bytes_to_text(byte_ids)
-
-    pairs = tokenizer.get_adjacent_pairs(byte_ids)
-
-    pair_frequencies = tokenizer.count_pair_frequencies(byte_ids)
-
-    most_frequent_pair = tokenizer.get_most_frequent_pair(
-        pair_frequencies
-    )
-
-    merged_ids = tokenizer.merge_pair(
+    trained_ids, learned_pair = tokenizer.train_step(
         ids=byte_ids,
-        pair=most_frequent_pair,
         new_token_id=256,
     )
 
     print("Original text:", text)
-
     print("Byte ids:", byte_ids)
-
-    print("Decoded text:", decoded_text)
-
-    print("Match:", text == decoded_text)
-
-    print("Adjacent pairs:", pairs)
-
-    print("Pair frequencies:", pair_frequencies)
-
-    print("Most frequent pair:", most_frequent_pair)
-
-    print("Merged ids:", merged_ids)
+    print("Learned pair:", learned_pair)
+    print("Trained ids after one step:", trained_ids)
