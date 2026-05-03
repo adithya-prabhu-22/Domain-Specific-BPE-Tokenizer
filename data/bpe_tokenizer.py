@@ -173,6 +173,23 @@ class BPETokenizer:
 
         return ids
 
+    def encode(
+        self,
+        text: str,
+    ) -> list[int]:
+
+        ids = self.text_to_bytes(text)
+
+        for pair, token_id in self.merges.items():
+
+            ids = self.merge_pair(
+                ids=ids,
+                pair=pair,
+                new_token_id=token_id,
+            )
+
+        return ids
+
     def decode_token_ids(
         self,
         token_ids: list[int],
@@ -200,18 +217,17 @@ if __name__ == "__main__":
 
     tokenizer = BPETokenizer(vocab_size=260)
 
-    text = "cf cf cf cf"
+    train_text = "cf cf cf cf"
 
-    trained_ids = tokenizer.train(text)
+    trained_ids = tokenizer.train(train_text)
 
-    decoded_text = tokenizer.decode_token_ids(trained_ids)
+    encoded_ids = tokenizer.encode(train_text)
 
-    print("Original text:", text)
+    decoded_text = tokenizer.decode_token_ids(encoded_ids)
+
+    print("Training text:", train_text)
     print("Trained ids:", trained_ids)
     print("Merge rules:", tokenizer.merges)
-    print("Vocab[256]:", tokenizer.vocab[256])
-    print("Vocab[256] decoded:", tokenizer.vocab[256].decode("utf-8"))
-    print("Vocab[257]:", tokenizer.vocab[257])
-    print("Vocab[257] decoded:", tokenizer.vocab[257].decode("utf-8"))
-    print("Decoded from token ids:", decoded_text)
-    print("Match:", text == decoded_text)
+    print("Encoded ids:", encoded_ids)
+    print("Decoded text:", decoded_text)
+    print("Match:", train_text == decoded_text)
