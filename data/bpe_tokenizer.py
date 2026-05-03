@@ -3,8 +3,16 @@ from collections import Counter
 
 class BPETokenizer:
 
-    def __init__(self):
-        pass
+    def __init__(self, vocab_size: int = 500):
+
+        if not isinstance(vocab_size, int):
+            raise TypeError("vocab_size must be an integer.")
+
+        if vocab_size <= 256:
+            raise ValueError("vocab_size must be greater than 256.")
+
+        self.vocab_size = vocab_size
+        self.merges = {}
 
     def text_to_bytes(self, text: str) -> list[int]:
 
@@ -44,9 +52,7 @@ class BPETokenizer:
         pairs = []
 
         for i in range(len(ids) - 1):
-
             pair = (ids[i], ids[i + 1])
-
             pairs.append(pair)
 
         return pairs
@@ -132,21 +138,40 @@ class BPETokenizer:
 
         return merged_ids, most_frequent_pair
 
+    def train(
+        self,
+        text: str,
+    ) -> list[int]:
+
+        ids = self.text_to_bytes(text)
+
+        next_token_id = 256
+
+        while next_token_id < self.vocab_size:
+
+            ids, learned_pair = self.train_step(
+                ids=ids,
+                new_token_id=next_token_id,
+            )
+
+            if learned_pair is None:
+                break
+
+            self.merges[learned_pair] = next_token_id
+
+            next_token_id += 1
+
+        return ids
+
 
 if __name__ == "__main__":
 
-    tokenizer = BPETokenizer()
+    tokenizer = BPETokenizer(vocab_size=260)
 
-    text = "cf cf TNF-α 😊"
+    text = "cf cf cf cf"
 
-    byte_ids = tokenizer.text_to_bytes(text)
-
-    trained_ids, learned_pair = tokenizer.train_step(
-        ids=byte_ids,
-        new_token_id=256,
-    )
+    trained_ids = tokenizer.train(text)
 
     print("Original text:", text)
-    print("Byte ids:", byte_ids)
-    print("Learned pair:", learned_pair)
-    print("Trained ids after one step:", trained_ids)
+    print("Trained ids:", trained_ids)
+    print("Merge rules:", tokenizer.merges)
