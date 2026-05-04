@@ -1,4 +1,6 @@
 from collections import Counter
+import json
+from pathlib import Path
 
 
 class BPETokenizer:
@@ -13,6 +15,7 @@ class BPETokenizer:
 
         self.vocab_size = vocab_size
         self.merges = {}
+        self.merge_order = []
         self.vocab = self.build_base_vocab()
 
     def build_base_vocab(self) -> dict[int, bytes]:
@@ -26,55 +29,24 @@ class BPETokenizer:
 
         return list(text.encode("utf-8"))
 
-    def bytes_to_text(self, byte_ids: list[int]) -> str:
-
-        if not isinstance(byte_ids, list):
-            raise TypeError("byte_ids must be a list of integers.")
-
-        for byte_id in byte_ids:
-
-            if not isinstance(byte_id, int):
-                raise TypeError("All byte ids must be integers.")
-
-            if byte_id < 0 or byte_id > 255:
-                raise ValueError("Byte ids must be in the range 0 to 255.")
-
-        return bytes(byte_ids).decode("utf-8")
-
     def get_adjacent_pairs(
         self,
         ids: list[int],
     ) -> list[tuple[int, int]]:
 
-        if not isinstance(ids, list):
-            raise TypeError("ids must be a list of integers.")
-
-        for token_id in ids:
-
-            if not isinstance(token_id, int):
-                raise TypeError("All token ids must be integers.")
-
-        pairs = []
-
-        for i in range(len(ids) - 1):
-            pair = (ids[i], ids[i + 1])
-            pairs.append(pair)
-
-        return pairs
+        return [(ids[i], ids[i + 1]) for i in range(len(ids) - 1)]
 
     def count_pair_frequencies(
         self,
         ids: list[int],
-    ) -> Counter[tuple[int, int]]:
+    ) -> Counter:
 
-        pairs = self.get_adjacent_pairs(ids)
-
-        return Counter(pairs)
+        return Counter(self.get_adjacent_pairs(ids))
 
     def get_most_frequent_pair(
         self,
-        pair_frequencies: Counter[tuple[int, int]],
-    ) -> tuple[int, int] | None:
+        pair_frequencies: Counter,
+    ):
 
         if not pair_frequencies:
             return None
@@ -88,29 +60,13 @@ class BPETokenizer:
         new_token_id: int,
     ) -> list[int]:
 
-        if not isinstance(ids, list):
-            raise TypeError("ids must be a list of integers.")
-
-        if not isinstance(pair, tuple):
-            raise TypeError("pair must be a tuple.")
-
-        if len(pair) != 2:
-            raise ValueError("pair must contain exactly two token ids.")
-
-        if not isinstance(new_token_id, int):
-            raise TypeError("new_token_id must be an integer.")
-
         merged_ids = []
 
         i = 0
 
         while i < len(ids):
 
-            if (
-                i < len(ids) - 1
-                and ids[i] == pair[0]
-                and ids[i + 1] == pair[1]
-            ):
+            if i < len(ids) - 1 and ids[i] == pair[0] and ids[i + 1] == pair[1]:
                 merged_ids.append(new_token_id)
                 i += 2
 
@@ -124,24 +80,22 @@ class BPETokenizer:
         self,
         ids: list[int],
         new_token_id: int,
-    ) -> tuple[list[int], tuple[int, int] | None]:
+    ):
 
         pair_frequencies = self.count_pair_frequencies(ids)
 
-        most_frequent_pair = self.get_most_frequent_pair(
-            pair_frequencies
-        )
+        pair = self.get_most_frequent_pair(pair_frequencies)
 
-        if most_frequent_pair is None:
+        if pair is None:
             return ids, None
 
         merged_ids = self.merge_pair(
             ids=ids,
-            pair=most_frequent_pair,
+            pair=pair,
             new_token_id=new_token_id,
         )
 
-        return merged_ids, most_frequent_pair
+        return merged_ids, pair
 
     def train(
         self,
@@ -154,19 +108,20 @@ class BPETokenizer:
 
         while next_token_id < self.vocab_size:
 
-            ids, learned_pair = self.train_step(
+            ids, pair = self.train_step(
                 ids=ids,
                 new_token_id=next_token_id,
             )
 
-            if learned_pair is None:
+            if pair is None:
                 break
 
-            self.merges[learned_pair] = next_token_id
+            self.merges[pair] = next_token_id
+            self.merge_order.append((pair, next_token_id))
 
             self.vocab[next_token_id] = (
-                self.vocab[learned_pair[0]]
-                + self.vocab[learned_pair[1]]
+                self.vocab[pair[0]]
+                + self.vocab[pair[1]]
             )
 
             next_token_id += 1
@@ -180,7 +135,7 @@ class BPETokenizer:
 
         ids = self.text_to_bytes(text)
 
-        for pair, token_id in self.merges.items():
+        for pair, token_id in self.merge_order:
 
             ids = self.merge_pair(
                 ids=ids,
@@ -190,20 +145,14 @@ class BPETokenizer:
 
         return ids
 
-    def decode_token_ids(
+    def decode(
         self,
         token_ids: list[int],
     ) -> str:
 
-        if not isinstance(token_ids, list):
-            raise TypeError("token_ids must be a list of integers.")
-
         byte_sequence = b""
 
         for token_id in token_ids:
-
-            if not isinstance(token_id, int):
-                raise TypeError("All token ids must be integers.")
 
             if token_id not in self.vocab:
                 raise ValueError(f"Unknown token id: {token_id}")
@@ -212,29 +161,83 @@ class BPETokenizer:
 
         return byte_sequence.decode("utf-8")
 
-    def decode(
+    def save(
         self,
-        token_ids: list[int],
-    ) -> str:
+        path: str,
+    ) -> None:
 
-        return self.decode_token_ids(token_ids)
+        path = Path(path)
+
+        path.parent.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+
+        data = {
+            "vocab_size": self.vocab_size,
+            "merge_order": [
+                {
+                    "pair": [pair[0], pair[1]],
+                    "token_id": token_id,
+                }
+                for pair, token_id in self.merge_order
+            ],
+        }
+
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
+
+    @classmethod
+    def load(
+        cls,
+        path: str,
+    ) -> "BPETokenizer":
+
+        path = Path(path)
+
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        tokenizer = cls(vocab_size=data["vocab_size"])
+
+        for item in data["merge_order"]:
+
+            pair = tuple(item["pair"])
+            token_id = item["token_id"]
+
+            tokenizer.merges[pair] = token_id
+            tokenizer.merge_order.append((pair, token_id))
+
+            tokenizer.vocab[token_id] = (
+                tokenizer.vocab[pair[0]]
+                + tokenizer.vocab[pair[1]]
+            )
+
+        return tokenizer
 
 
 if __name__ == "__main__":
 
     tokenizer = BPETokenizer(vocab_size=260)
 
-    train_text = "cf cf cf cf"
+    text = "cf cf cf cf"
 
-    trained_ids = tokenizer.train(train_text)
+    tokenizer.train(text)
 
-    encoded_ids = tokenizer.encode(train_text)
+    encoded = tokenizer.encode(text)
+    decoded = tokenizer.decode(encoded)
 
-    decoded_text = tokenizer.decode(encoded_ids)
+    tokenizer.save("resources/bpe_tokenizer.json")
 
-    print("Training text:", train_text)
-    print("Trained ids:", trained_ids)
-    print("Merge rules:", tokenizer.merges)
-    print("Encoded ids:", encoded_ids)
-    print("Decoded text:", decoded_text)
-    print("Match:", train_text == decoded_text)
+    loaded_tokenizer = BPETokenizer.load("resources/bpe_tokenizer.json")
+
+    loaded_encoded = loaded_tokenizer.encode(text)
+    loaded_decoded = loaded_tokenizer.decode(loaded_encoded)
+
+    print("Encoded:", encoded)
+    print("Decoded:", decoded)
+    print("Match:", text == decoded)
+
+    print("Loaded encoded:", loaded_encoded)
+    print("Loaded decoded:", loaded_decoded)
+    print("Loaded match:", text == loaded_decoded)
