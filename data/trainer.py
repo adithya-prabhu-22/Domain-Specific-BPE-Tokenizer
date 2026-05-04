@@ -1,7 +1,29 @@
 from collections import Counter
+from pathlib import Path
+import re
 
 from data.encoder import merge_pair
 from data.vocab import text_to_bytes
+
+
+def build_word_frequencies(
+    corpus_dir: str,
+) -> Counter[str]:
+
+    word_freqs = Counter()
+    corpus_path = Path(corpus_dir)
+
+    for file_path in sorted(corpus_path.glob("*.txt")):
+
+        print(f"Reading: {file_path}")
+
+        with open(file_path, "r", encoding="utf-8") as f:
+
+            for line in f:
+                words = re.findall(r"\S+", line)
+                word_freqs.update(words)
+
+    return word_freqs
 
 
 def get_adjacent_pairs(
