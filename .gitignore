@@ -1,0 +1,13 @@
+
+__pycache__/
+*.pyc
+
+resources/*.json
+resources/*.pt
+resources/*.log
+
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
