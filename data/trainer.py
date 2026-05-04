@@ -6,9 +6,7 @@ from data.encoder import merge_pair
 from data.vocab import text_to_bytes
 
 
-def build_word_frequencies(
-    corpus_dir: str,
-) -> Counter[str]:
+def build_word_frequencies(corpus_dir: str) -> Counter[str]:
 
     word_freqs = Counter()
     corpus_path = Path(corpus_dir)
@@ -35,9 +33,26 @@ def get_adjacent_pairs(
 
 def count_pair_frequencies(
     ids: list[int],
-) -> Counter:
+) -> Counter[tuple[int, int]]:
 
     return Counter(get_adjacent_pairs(ids))
+
+
+def count_weighted_pair_frequencies(
+    word_token_ids: dict[str, list[int]],
+    word_freqs: Counter[str],
+) -> Counter[tuple[int, int]]:
+
+    pair_frequencies = Counter()
+
+    for word, ids in word_token_ids.items():
+
+        frequency = word_freqs[word]
+
+        for pair in get_adjacent_pairs(ids):
+            pair_frequencies[pair] += frequency
+
+    return pair_frequencies
 
 
 def get_most_frequent_pair(
@@ -101,3 +116,59 @@ def train_bpe(
         next_token_id += 1
 
     return ids
+
+
+def train_bpe_from_word_frequencies(
+    tokenizer,
+    word_freqs: Counter[str],
+) -> dict[str, list[int]]:
+
+    word_token_ids = {
+        word: text_to_bytes(word)
+        for word in word_freqs
+    }
+
+    next_token_id = 256
+
+    while next_token_id < tokenizer.vocab_size:
+
+        pair_frequencies = count_weighted_pair_frequencies(
+            word_token_ids=word_token_ids,
+            word_freqs=word_freqs,
+        )
+
+        pair = get_most_frequent_pair(pair_frequencies)
+
+        if pair is None:
+            break
+
+        new_word_token_ids = {}
+
+        for word, ids in word_token_ids.items():
+
+            new_word_token_ids[word] = merge_pair(
+                ids=ids,
+                pair=pair,
+                new_token_id=next_token_id,
+            )
+
+        word_token_ids = new_word_token_ids
+
+        tokenizer.merges[pair] = next_token_id
+        tokenizer.merge_order.append((pair, next_token_id))
+
+        tokenizer.vocab[next_token_id] = (
+            tokenizer.vocab[pair[0]]
+            + tokenizer.vocab[pair[1]]
+        )
+
+        if next_token_id % 100 == 0:
+            print(
+                f"Learned token {next_token_id} | "
+                f"Pair: {pair} | "
+                f"Frequency: {pair_frequencies[pair]}"
+            )
+
+        next_token_id += 1
+
+    return word_token_ids
