@@ -26,7 +26,12 @@ PROJECT_STRUCTURE = {
         ".gitkeep",
     ],
 
+    "resources/medical_corpus": [
+        ".gitkeep",
+    ],
+
     "scripts": [
+        "prepare_medical_corpus.py",   # 🔥 NEW FILE
         "train_tokenizer.py",
     ],
 
