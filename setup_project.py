@@ -31,7 +31,10 @@ PROJECT_STRUCTURE = {
     ],
 
     "scripts": [
-        "prepare_medical_corpus.py",   # 🔥 NEW FILE
+        "prepare_medical_corpus.py",
+        "collect_general_corpus.py",
+        "collect_pubmed_corpus.py",
+        "collect_pmc_open_corpus.py",
         "train_tokenizer.py",
     ],
 
