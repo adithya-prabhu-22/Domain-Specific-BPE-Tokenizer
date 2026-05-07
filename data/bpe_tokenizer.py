@@ -33,11 +33,15 @@ class BPETokenizer:
     def train_from_word_frequencies(
         self,
         word_freqs,
+        checkpoint_every=None,
+        checkpoint_dir=None,
     ):
 
         return train_bpe_from_word_frequencies(
             tokenizer=self,
             word_freqs=word_freqs,
+            checkpoint_every=checkpoint_every,
+            checkpoint_dir=checkpoint_dir,
         )
 
     def encode(

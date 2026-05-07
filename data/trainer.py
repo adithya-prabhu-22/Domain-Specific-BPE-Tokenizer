@@ -15,7 +15,7 @@ def build_word_frequencies(corpus_dir: str) -> Counter[str]:
 
         print(f"Reading: {file_path}")
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
 
             for line in f:
                 words = re.findall(r"\S+", line)
@@ -28,7 +28,10 @@ def get_adjacent_pairs(
     ids: list[int],
 ) -> list[tuple[int, int]]:
 
-    return [(ids[i], ids[i + 1]) for i in range(len(ids) - 1)]
+    return [
+        (ids[i], ids[i + 1])
+        for i in range(len(ids) - 1)
+    ]
 
 
 def count_pair_frequencies(
@@ -121,6 +124,8 @@ def train_bpe(
 def train_bpe_from_word_frequencies(
     tokenizer,
     word_freqs: Counter[str],
+    checkpoint_every: int | None = None,
+    checkpoint_dir: str | None = None,
 ) -> dict[str, list[int]]:
 
     word_token_ids = {
@@ -168,6 +173,20 @@ def train_bpe_from_word_frequencies(
                 f"Pair: {pair} | "
                 f"Frequency: {pair_frequencies[pair]}"
             )
+
+        if (
+            checkpoint_every is not None
+            and checkpoint_dir is not None
+            and next_token_id % checkpoint_every == 0
+        ):
+            checkpoint_path = (
+                f"{checkpoint_dir}/"
+                f"bpe_checkpoint_token_{next_token_id}.json"
+            )
+
+            tokenizer.save(checkpoint_path)
+
+            print(f"Checkpoint saved: {checkpoint_path}")
 
         next_token_id += 1
 

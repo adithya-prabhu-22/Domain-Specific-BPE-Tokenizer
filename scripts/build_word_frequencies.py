@@ -7,9 +7,9 @@ from pathlib import Path
 
 
 CORPUS_LIMITS = {
-    "/content/drive/MyDrive/final_corpus/general": 30,
-    "/content/drive/MyDrive/final_corpus/pubmed": 10,
-    "/content/drive/MyDrive/final_corpus/pmc_open": 80,
+    "/content/drive/MyDrive/final_corpus/general": 20,
+    "/content/drive/MyDrive/final_corpus/pubmed": 5,
+    "/content/drive/MyDrive/final_corpus/pmc_open": 55,
 }
 OUTPUT_PATH = "resources/word_freqs.pkl"
 

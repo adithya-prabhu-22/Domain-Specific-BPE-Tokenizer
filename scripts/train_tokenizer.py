@@ -6,7 +6,10 @@ from data.bpe_tokenizer import BPETokenizer
 
 WORD_FREQS_PATH = "resources/word_freqs.pkl"
 OUTPUT_PATH = "resources/bpe_medical_final.json"
+CHECKPOINT_DIR = "/content/drive/MyDrive/tokenizer_checkpoints"
+
 VOCAB_SIZE = 8000
+CHECKPOINT_EVERY = 500
 
 
 print("Loading word frequency table...")
@@ -33,7 +36,11 @@ print("Training tokenizer with weighted word frequencies...")
 
 start = time.time()
 
-tokenizer.train_from_word_frequencies(word_freqs)
+tokenizer.train_from_word_frequencies(
+    word_freqs,
+    checkpoint_every=CHECKPOINT_EVERY,
+    checkpoint_dir=CHECKPOINT_DIR,
+)
 
 end = time.time()
 
