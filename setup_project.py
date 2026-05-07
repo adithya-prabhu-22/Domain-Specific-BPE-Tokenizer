@@ -26,7 +26,15 @@ PROJECT_STRUCTURE = {
         ".gitkeep",
     ],
 
-    "resources/medical_corpus": [
+    "resources/raw_corpus": [
+        ".gitkeep",
+    ],
+
+    "resources/cleaned_corpus": [
+        ".gitkeep",
+    ],
+
+    "resources/tokenized_corpus": [
         ".gitkeep",
     ],
 
@@ -35,7 +43,10 @@ PROJECT_STRUCTURE = {
         "collect_general_corpus.py",
         "collect_pubmed_corpus.py",
         "collect_pmc_open_corpus.py",
+        "clean_corpus.py",
+        "build_word_frequencies.py",
         "train_tokenizer.py",
+        "tokenize_corpus.py",
     ],
 
     "root_files": [
@@ -46,7 +57,10 @@ PROJECT_STRUCTURE = {
 }
 
 
-def create_project_structure(base_path: Path, structure: dict) -> None:
+def create_project_structure(
+    base_path: Path,
+    structure: dict,
+) -> None:
 
     for folder_name, files in structure.items():
 
@@ -55,21 +69,31 @@ def create_project_structure(base_path: Path, structure: dict) -> None:
             for file_name in files:
 
                 file_path = base_path / file_name
-                file_path.touch(exist_ok=True)
+
+                file_path.touch(
+                    exist_ok=True,
+                )
 
                 print(f"[FILE] {file_path}")
 
             continue
 
         folder_path = base_path / folder_name
-        folder_path.mkdir(parents=True, exist_ok=True)
+
+        folder_path.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
 
         print(f"[DIR ] {folder_path}")
 
         for file_name in files:
 
             file_path = folder_path / file_name
-            file_path.touch(exist_ok=True)
+
+            file_path.touch(
+                exist_ok=True,
+            )
 
             print(f"[FILE] {file_path}")
 
