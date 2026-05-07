@@ -9,7 +9,8 @@ OUTPUT_PATH = "resources/bpe_medical_final.json"
 CHECKPOINT_DIR = "/content/drive/MyDrive/tokenizer_checkpoints"
 
 VOCAB_SIZE = 8000
-CHECKPOINT_EVERY = 500
+CHECKPOINT_EVERY = 100
+MIN_FREQUENCY = 5
 
 
 print("Loading word frequency table...")
@@ -27,8 +28,27 @@ if not word_freqs:
 end = time.time()
 
 print(f"Word frequency table loaded in {end - start:.2f} seconds")
-print("Unique words:", len(word_freqs))
-print("Total words:", sum(word_freqs.values()))
+print("Unique words before filter:", len(word_freqs))
+print("Total words before filter:", sum(word_freqs.values()))
+
+
+print(f"Filtering words with frequency < {MIN_FREQUENCY}...")
+
+word_freqs = {
+    word: frequency
+    for word, frequency in word_freqs.items()
+    if frequency >= MIN_FREQUENCY
+}
+
+if not word_freqs:
+    raise ValueError(
+        "Word frequency table became empty after filtering. "
+        "Try lowering MIN_FREQUENCY."
+    )
+
+print("Unique words after filter:", len(word_freqs))
+print("Total words after filter:", sum(word_freqs.values()))
+
 
 tokenizer = BPETokenizer(vocab_size=VOCAB_SIZE)
 
@@ -45,6 +65,7 @@ tokenizer.train_from_word_frequencies(
 end = time.time()
 
 print(f"Training complete. Time taken: {end - start:.2f} seconds")
+
 
 print("Testing tokenizer...")
 
@@ -66,6 +87,7 @@ for sample in samples:
     assert decoded == sample
 
 print("Tokenizer test passed.")
+
 
 print("Saving tokenizer...")
 
