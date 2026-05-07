@@ -6,12 +6,11 @@ from collections import Counter
 from pathlib import Path
 
 
-CORPUS_DIRS = [
-    "/content/drive/MyDrive/final_corpus/general",
-    "/content/drive/MyDrive/final_corpus/pubmed",
-    "/content/drive/MyDrive/final_corpus/pmc_open",
-]
-
+CORPUS_LIMITS = {
+    "/content/drive/MyDrive/final_corpus/general": 30,
+    "/content/drive/MyDrive/final_corpus/pubmed": 10,
+    "/content/drive/MyDrive/final_corpus/pmc_open": 80,
+}
 OUTPUT_PATH = "resources/word_freqs.pkl"
 
 CHECKPOINT_EVERY = 10
@@ -24,7 +23,7 @@ def update_word_frequencies(
 
     print(f"Reading: {file_path}")
 
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
 
         for line in f:
 
@@ -37,6 +36,13 @@ def save_checkpoint(
     word_freqs: Counter,
     output_path: str,
 ) -> None:
+
+    output_path = Path(output_path)
+
+    output_path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
     with open(output_path, "wb") as f:
         pickle.dump(word_freqs, f)
@@ -52,13 +58,21 @@ def main() -> None:
 
     total_files = 0
 
-    for corpus_dir in CORPUS_DIRS:
+    for corpus_dir, max_files in CORPUS_LIMITS.items():
 
         corpus_path = Path(corpus_dir)
 
         print(f"\nProcessing corpus: {corpus_dir}")
+        print(f"Max files: {max_files}")
 
-        for file_path in sorted(corpus_path.glob("*.txt")):
+        chunk_files = sorted(corpus_path.glob("*.txt"))[:max_files]
+
+        if not chunk_files:
+            raise ValueError(
+                f"No .txt chunk files found in: {corpus_dir}"
+            )
+
+        for file_path in chunk_files:
 
             update_word_frequencies(
                 file_path=file_path,
@@ -74,13 +88,9 @@ def main() -> None:
                     output_path=OUTPUT_PATH,
                 )
 
-                print(
-                    f"Files processed: {total_files}"
-                )
-
-                print(
-                    f"Unique words: {len(word_freqs):,}"
-                )
+                print(f"Files processed: {total_files}")
+                print(f"Unique words: {len(word_freqs):,}")
+                print(f"Total words: {sum(word_freqs.values()):,}")
 
     save_checkpoint(
         word_freqs=word_freqs,
@@ -90,15 +100,10 @@ def main() -> None:
     end = time.time()
 
     print("\nDone.")
-
     print(f"Time taken: {end - start:.2f} seconds")
-
+    print(f"Files processed: {total_files}")
     print(f"Unique words: {len(word_freqs):,}")
-
-    print(
-        f"Total words: "
-        f"{sum(word_freqs.values()):,}"
-    )
+    print(f"Total words: {sum(word_freqs.values()):,}")
 
 
 if __name__ == "__main__":
