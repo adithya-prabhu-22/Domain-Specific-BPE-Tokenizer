@@ -1,29 +1,29 @@
+import pickle
 import time
 
 from data.bpe_tokenizer import BPETokenizer
-from data.trainer import build_word_frequencies
 
 
-CORPUS_DIR = "resources/medical_corpus"
-OUTPUT_PATH = "resources/bpe_medical_1m.json"
-VOCAB_SIZE = 5000
+WORD_FREQS_PATH = "resources/word_freqs.pkl"
+OUTPUT_PATH = "resources/bpe_medical_final.json"
+VOCAB_SIZE = 8000
 
 
-print("Building word frequency table...")
+print("Loading word frequency table...")
 
 start = time.time()
 
-word_freqs = build_word_frequencies(CORPUS_DIR)
+with open(WORD_FREQS_PATH, "rb") as f:
+    word_freqs = pickle.load(f)
 
 if not word_freqs:
     raise ValueError(
-        f"No words found in corpus directory: {CORPUS_DIR}. "
-        "Make sure it contains .txt chunk files."
+        f"No word frequencies found in: {WORD_FREQS_PATH}"
     )
 
 end = time.time()
 
-print(f"Word frequency table built in {end - start:.2f} seconds")
+print(f"Word frequency table loaded in {end - start:.2f} seconds")
 print("Unique words:", len(word_freqs))
 print("Total words:", sum(word_freqs.values()))
 
@@ -45,6 +45,7 @@ samples = [
     "patient treatment",
     "hypertension and diabetes",
     "cardiovascular disease",
+    "immunotherapy improved survival outcomes",
 ]
 
 for sample in samples:
