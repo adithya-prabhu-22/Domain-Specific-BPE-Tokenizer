@@ -79,7 +79,7 @@ def train_bpe_from_word_frequencies(
         if pair is None:
             break
 
-        affected_words = pair_to_words.get(pair, set())
+        affected_words = list(pair_to_words.get(pair, set()))
 
         for word in affected_words:
             old_ids = word_token_ids[word]
