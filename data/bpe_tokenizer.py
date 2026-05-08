@@ -5,6 +5,9 @@ from data.trainer import train_bpe, train_bpe_from_word_frequencies
 from data.vocab import build_base_vocab
 
 
+SPECIAL_TOKENS = ["[UNK]", "[PAD]", "[BOS]", "[EOS]"]
+
+
 class BPETokenizer:
 
     def __init__(self, vocab_size: int = 500):
@@ -20,15 +23,19 @@ class BPETokenizer:
         self.merge_order = []
         self.vocab = build_base_vocab()
 
-    def train(
-        self,
-        text: str,
-    ) -> list[int]:
+        self.special_tokens = {}
+        for token in SPECIAL_TOKENS:
+            token_id = len(self.vocab)
+            self.vocab[token_id] = token.encode("utf-8")
+            self.special_tokens[token] = token_id
 
-        return train_bpe(
-            tokenizer=self,
-            text=text,
-        )
+        self.unk_id = self.special_tokens["[UNK]"]
+        self.pad_id = self.special_tokens["[PAD]"]
+        self.bos_id = self.special_tokens["[BOS]"]
+        self.eos_id = self.special_tokens["[EOS]"]
+
+    def train(self, text: str):
+        return train_bpe(tokenizer=self, text=text)
 
     def train_from_word_frequencies(
         self,
@@ -36,7 +43,6 @@ class BPETokenizer:
         checkpoint_every=None,
         checkpoint_dir=None,
     ):
-
         return train_bpe_from_word_frequencies(
             tokenizer=self,
             word_freqs=word_freqs,
@@ -44,46 +50,18 @@ class BPETokenizer:
             checkpoint_dir=checkpoint_dir,
         )
 
-    def encode(
-        self,
-        text: str,
-    ) -> list[int]:
+    def encode(self, text: str) -> list[int]:
+        return encode_text(tokenizer=self, text=text)
 
-        return encode_text(
-            tokenizer=self,
-            text=text,
-        )
+    def decode(self, token_ids: list[int]) -> str:
+        return decode_tokens(tokenizer=self, token_ids=token_ids)
 
-    def decode(
-        self,
-        token_ids: list[int],
-    ) -> str:
-
-        return decode_tokens(
-            tokenizer=self,
-            token_ids=token_ids,
-        )
-
-    def save(
-        self,
-        path: str,
-    ) -> None:
-
-        save_tokenizer(
-            tokenizer=self,
-            path=path,
-        )
+    def save(self, path: str) -> None:
+        save_tokenizer(tokenizer=self, path=path)
 
     @classmethod
-    def load(
-        cls,
-        path: str,
-    ) -> "BPETokenizer":
-
-        return load_tokenizer(
-            tokenizer_cls=cls,
-            path=path,
-        )
+    def load(cls, path: str) -> "BPETokenizer":
+        return load_tokenizer(tokenizer_cls=cls, path=path)
 
 
 if __name__ == "__main__":
