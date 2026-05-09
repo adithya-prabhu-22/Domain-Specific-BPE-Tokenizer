@@ -7,10 +7,11 @@ from pathlib import Path
 
 
 CORPUS_LIMITS = {
-    "/content/drive/MyDrive/final_corpus/general": 20,
-    "/content/drive/MyDrive/final_corpus/pubmed": 5,
-    "/content/drive/MyDrive/final_corpus/pmc_open": 55,
+    "/content/drive/MyDrive/final_corpus/general": 55,
+    "/content/drive/MyDrive/final_corpus/pubmed": 15,
+    "/content/drive/MyDrive/final_corpus/pmc_open": 170,
 }
+
 OUTPUT_PATH = "resources/word_freqs.pkl"
 
 CHECKPOINT_EVERY = 10
@@ -23,11 +24,19 @@ def update_word_frequencies(
 
     print(f"Reading: {file_path}")
 
-    with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+    with open(
+        file_path,
+        "r",
+        encoding="utf-8",
+        errors="ignore",
+    ) as f:
 
         for line in f:
 
-            words = re.findall(r"\S+", line)
+            words = re.findall(
+                r"[a-z0-9]+|[^\w\s]",
+                line.lower(),
+            )
 
             word_freqs.update(words)
 
@@ -65,7 +74,9 @@ def main() -> None:
         print(f"\nProcessing corpus: {corpus_dir}")
         print(f"Max files: {max_files}")
 
-        chunk_files = sorted(corpus_path.glob("*.txt"))[:max_files]
+        chunk_files = sorted(
+            corpus_path.glob("*.txt")
+        )[:max_files]
 
         if not chunk_files:
             raise ValueError(
@@ -88,9 +99,18 @@ def main() -> None:
                     output_path=OUTPUT_PATH,
                 )
 
-                print(f"Files processed: {total_files}")
-                print(f"Unique words: {len(word_freqs):,}")
-                print(f"Total words: {sum(word_freqs.values()):,}")
+                print(
+                    f"Files processed: {total_files}"
+                )
+
+                print(
+                    f"Unique words: {len(word_freqs):,}"
+                )
+
+                print(
+                    f"Total words: "
+                    f"{sum(word_freqs.values()):,}"
+                )
 
     save_checkpoint(
         word_freqs=word_freqs,
@@ -100,10 +120,23 @@ def main() -> None:
     end = time.time()
 
     print("\nDone.")
-    print(f"Time taken: {end - start:.2f} seconds")
+
+    print(
+        f"Time taken: "
+        f"{end - start:.2f} seconds"
+    )
+
     print(f"Files processed: {total_files}")
-    print(f"Unique words: {len(word_freqs):,}")
-    print(f"Total words: {sum(word_freqs.values()):,}")
+
+    print(
+        f"Unique words: "
+        f"{len(word_freqs):,}"
+    )
+
+    print(
+        f"Total words: "
+        f"{sum(word_freqs.values()):,}"
+    )
 
 
 if __name__ == "__main__":

@@ -5,10 +5,10 @@ from data.bpe_tokenizer import BPETokenizer
 
 
 WORD_FREQS_PATH = "resources/word_freqs.pkl"
-OUTPUT_PATH = "resources/bpe_medical_24k.json"
-CHECKPOINT_DIR = "/content/drive/MyDrive/tokenizer_checkpoints_24k"
+OUTPUT_PATH = "resources/bpe_medical_52k.json"
+CHECKPOINT_DIR = "/content/drive/MyDrive/tokenizer_checkpoints_52k"
 
-VOCAB_SIZE = 24000
+VOCAB_SIZE = 52000
 CHECKPOINT_EVERY = 1000
 MIN_FREQUENCY = 3
 
