@@ -2,7 +2,7 @@ from data.bpe_tokenizer import BPETokenizer
 
 
 def test_save_load(tmp_path):
-    tokenizer = BPETokenizer(vocab_size=260)
+    tokenizer = BPETokenizer(vocab_size=261)
     text = "cf cf cf cf"
 
     tokenizer.train(text)

@@ -2,7 +2,7 @@ from data.bpe_tokenizer import BPETokenizer
 
 
 def test_encode_consistency():
-    tokenizer = BPETokenizer(vocab_size=260)
+    tokenizer = BPETokenizer(vocab_size=261)
     text = "hello world"
 
     tokenizer.train(text)
