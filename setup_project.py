@@ -53,6 +53,7 @@ PROJECT_STRUCTURE = {
         "README.md",
         "requirements.txt",
         ".gitignore",
+        "pyproject.toml",
     ],
 }
 
