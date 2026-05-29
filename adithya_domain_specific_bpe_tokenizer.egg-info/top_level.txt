@@ -1,4 +1,0 @@
-domain_specific_bpe_tokenizer
-resources
-scripts
-tests
