@@ -1,9 +1,25 @@
 
-
 from domain_specific_bpe_tokenizer import BPETokenizer
 
 
-def test_encode_returns_list():
+def test_encode_decode_roundtrip():
+
+    tokenizer = BPETokenizer(
+        vocab_size=500,
+    )
+
+    text = "patient diagnosed with pneumonia"
+
+    tokenizer.train(text)
+
+    encoded = tokenizer.encode(text)
+
+    decoded = tokenizer.decode(encoded)
+
+    assert decoded == text
+
+
+def test_encode_output_not_empty():
 
     tokenizer = BPETokenizer(
         vocab_size=500,
@@ -17,23 +33,4 @@ def test_encode_returns_list():
         "hello",
     )
 
-    assert isinstance(encoded, list)
-
-
-def test_encoded_tokens_are_integers():
-
-    tokenizer = BPETokenizer(
-        vocab_size=500,
-    )
-
-    tokenizer.train(
-        "hello world",
-    )
-
-    encoded = tokenizer.encode(
-        "hello",
-    )
-
-    for token in encoded:
-
-        assert isinstance(token, int)
+    assert len(encoded) > 0

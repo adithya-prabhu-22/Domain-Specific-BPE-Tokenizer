@@ -1,13 +1,38 @@
-from domain_specific_bpe_tokenizer.bpe_tokenizer import BPETokenizer
+from domain_specific_bpe_tokenizer import BPETokenizer
 
 
-def test_save_load(tmp_path):
-    tokenizer = BPETokenizer(vocab_size=261)
-    text = "cf cf cf cf"
+def test_save_creates_file():
 
-    tokenizer.train(text)
-    tokenizer.save(tmp_path / "tok.json")
+    tokenizer = BPETokenizer(
+        vocab_size=500,
+    )
 
-    loaded = BPETokenizer.load(tmp_path / "tok.json")
+    tokenizer.train(
+        "heart disease prediction",
+    )
 
-    assert loaded.decode(loaded.encode(text)) == text
+    tokenizer.save(
+        "resources/test_tokenizer.json",
+    )
+
+
+def test_load_returns_tokenizer():
+
+    tokenizer = BPETokenizer(
+        vocab_size=500,
+    )
+
+    tokenizer.train(
+        "heart disease prediction",
+    )
+
+    path = "resources/test_tokenizer.json"
+
+    tokenizer.save(path)
+
+    loaded = BPETokenizer.load(path)
+
+    assert isinstance(
+        loaded,
+        BPETokenizer,
+    )

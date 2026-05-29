@@ -13,13 +13,17 @@ PROJECT_STRUCTURE = {
     ],
 
     "tests": [
-        "__init__.py",
-        "test_bpe.py",
-        "test_vocab.py",
-        "test_trainer.py",
-        "test_encoder.py",
-        "test_decoder.py",
-        "test_serialization.py",
+    "__init__.py",
+    "test_bpe_tokenizer.py",
+    "test_vocab.py",
+    "test_trainer.py",
+    "test_encoder.py",
+    "test_decoder.py",
+    "test_serialization.py",
+    "test_save_load.py",
+    "test_encode_decode.py",
+    "test_special_tokens.py",
+    "test_invalid_inputs.py",
     ],
 
     "resources": [
