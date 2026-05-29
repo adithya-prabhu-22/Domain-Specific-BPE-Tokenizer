@@ -2,7 +2,7 @@ import json
 import time
 from pathlib import Path
 
-from data.bpe_tokenizer import BPETokenizer
+from domain_specific_bpe_tokenizer.bpe_tokenizer import BPETokenizer
 
 
 TOKENIZER_PATH = "resources/bpe_medical_final.json"

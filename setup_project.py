@@ -2,7 +2,7 @@ from pathlib import Path
 
 
 PROJECT_STRUCTURE = {
-    "data": [
+    "domain_specific_bpe_tokenizer": [
         "__init__.py",
         "bpe_tokenizer.py",
         "vocab.py",

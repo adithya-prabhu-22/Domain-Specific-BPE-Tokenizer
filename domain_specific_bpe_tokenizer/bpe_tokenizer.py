@@ -1,8 +1,8 @@
-from data.decoder import decode_tokens
-from data.encoder import encode_text
-from data.serialization import load_tokenizer, save_tokenizer
-from data.trainer import train_bpe, train_bpe_from_word_frequencies
-from data.vocab import build_base_vocab
+from domain_specific_bpe_tokenizer.decoder import decode_tokens
+from domain_specific_bpe_tokenizer.encoder import encode_text
+from domain_specific_bpe_tokenizer.serialization import load_tokenizer, save_tokenizer
+from domain_specific_bpe_tokenizer.trainer import train_bpe, train_bpe_from_word_frequencies
+from domain_specific_bpe_tokenizer.vocab import build_base_vocab
 
 
 SPECIAL_TOKENS = ["[UNK]", "[PAD]", "[BOS]", "[EOS]"]

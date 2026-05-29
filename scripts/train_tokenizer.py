@@ -1,7 +1,7 @@
 import pickle
 import time
 
-from data.bpe_tokenizer import BPETokenizer
+from domain_specific_bpe_tokenizer.bpe_tokenizer import BPETokenizer
 
 
 WORD_FREQS_PATH = "resources/word_freqs.pkl"

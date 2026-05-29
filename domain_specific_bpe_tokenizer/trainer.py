@@ -2,8 +2,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 import re
 
-from data.encoder import merge_pair
-from data.vocab import text_to_bytes
+from domain_specific_bpe_tokenizer.encoder import merge_pair
+from domain_specific_bpe_tokenizer.vocab import text_to_bytes
 
 
 def build_word_frequencies(corpus_dir: str) -> Counter:

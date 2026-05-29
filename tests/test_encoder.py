@@ -1,4 +1,4 @@
-from data.bpe_tokenizer import BPETokenizer
+from domain_specific_bpe_tokenizer.bpe_tokenizer import BPETokenizer
 
 
 def test_encode_consistency():

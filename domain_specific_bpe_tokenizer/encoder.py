@@ -1,4 +1,4 @@
-from data.vocab import text_to_bytes
+from domain_specific_bpe_tokenizer.vocab import text_to_bytes
 
 
 def merge_pair(
