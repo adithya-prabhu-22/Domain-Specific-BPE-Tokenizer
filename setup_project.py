@@ -37,6 +37,14 @@ PROJECT_STRUCTURE = {
     "resources/tokenized_corpus": [
         ".gitkeep",
     ],
+    
+    "resources/trained_tokenizer": [
+    ".gitkeep",
+    ],
+    
+    "examples":[
+        "basic_usage.py",
+    ],
 
     "scripts": [
         "prepare_medical_corpus.py",
