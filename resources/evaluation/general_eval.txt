@@ -1,0 +1,1 @@
+Natural language processing models rely heavily on efficient tokenization strategies for handling large text corpora. Byte pair encoding is commonly used in transformer-based language models.

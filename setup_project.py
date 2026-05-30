@@ -2,6 +2,7 @@ from pathlib import Path
 
 
 PROJECT_STRUCTURE = {
+
     "domain_specific_bpe_tokenizer": [
         "__init__.py",
         "bpe_tokenizer.py",
@@ -13,17 +14,17 @@ PROJECT_STRUCTURE = {
     ],
 
     "tests": [
-    "__init__.py",
-    "test_bpe_tokenizer.py",
-    "test_vocab.py",
-    "test_trainer.py",
-    "test_encoder.py",
-    "test_decoder.py",
-    "test_serialization.py",
-    "test_save_load.py",
-    "test_encode_decode.py",
-    "test_special_tokens.py",
-    "test_invalid_inputs.py",
+        "__init__.py",
+        "test_bpe_tokenizer.py",
+        "test_vocab.py",
+        "test_trainer.py",
+        "test_encoder.py",
+        "test_decoder.py",
+        "test_serialization.py",
+        "test_save_load.py",
+        "test_encode_decode.py",
+        "test_special_tokens.py",
+        "test_invalid_inputs.py",
     ],
 
     "resources": [
@@ -41,13 +42,20 @@ PROJECT_STRUCTURE = {
     "resources/tokenized_corpus": [
         ".gitkeep",
     ],
-    
+
     "resources/trained_tokenizer": [
-    ".gitkeep",
+        ".gitkeep",
     ],
-    
-    "examples":[
+
+    "resources/evaluation": [
+        "medical_eval.txt",
+        "general_eval.txt",
+    ],
+
+    "examples": [
         "basic_usage.py",
+        "load_pretrained_tokenizer.py",
+        "medical_tokenization_demo.py",
     ],
 
     "scripts": [
@@ -59,6 +67,22 @@ PROJECT_STRUCTURE = {
         "build_word_frequencies.py",
         "train_tokenizer.py",
         "tokenize_corpus.py",
+        "evaluate_tokenizer.py",
+        "benchmark_against_tiktoken.py",
+    ],
+
+    ".github": [
+        ".gitkeep",
+    ],
+
+    ".github/workflows": [
+        "tests.yml",
+    ],
+
+    "docs": [
+        "architecture.md",
+        "evaluation.md",
+        "benchmarks.md",
     ],
 
     "root_files": [
