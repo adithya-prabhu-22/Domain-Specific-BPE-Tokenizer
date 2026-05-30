@@ -5,13 +5,13 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "adithya-domain-specific-bpe-tokenizer"
 version = "0.1.0"
-description = "A domain specific BPE tokenizer for medical and general corpora"
+description = "A domain-specific Byte Pair Encoding tokenizer for medical and general NLP corpora"
 readme = "README.md"
 requires-python = ">=3.9"
-license = {text = "MIT"}
+license = "MIT"
 
 authors = [
-    {name = "Adithya Prabhu"}
+    { name = "Adithya Prabhu" }
 ]
 
 keywords = [
@@ -25,11 +25,14 @@ keywords = [
 
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
     "Operating System :: OS Independent",
 ]
 
 dependencies = []
 
+[tool.setuptools]
+include-package-data = true
+
 [tool.setuptools.packages.find]
-where = ["."]
+include = ["domain_specific_bpe_tokenizer*"]
